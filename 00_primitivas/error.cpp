@@ -1,8 +1,11 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
+
 int main(){
 
-	printf("Hola, mundo\n"); /* Llamada a la función */
+    fprintf(stderr, "stderr: The world is a vampire.\n");
 	return EXIT_SUCCESS;
 }
