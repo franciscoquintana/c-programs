@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define S 3
 
-bool is_dotted(int f, int c)
+bool is_dotted(int f, int c, int S)
 {
     if ((f/S)%2 == 0 && (c/S)%2 == 0)
       return 1;
@@ -15,16 +14,19 @@ bool is_dotted(int f, int c)
 }
 int main(){
 
-    int cuadrados;
+    int cuadrados, S;
 
     printf("¿Cuantos cuadrados quieres? ");
     scanf(" %i", &cuadrados);
+    printf("Tamaño: ");
+    scanf(" %i", &S);
+
     int size = cuadrados * S;
 
     for (int f=0; f<size; f++) {
         for (int c=0; c<size; c++)
         {
-            if (is_dotted(f,c))
+            if (is_dotted(f,c,S))
                 printf("*");
             else
             {
