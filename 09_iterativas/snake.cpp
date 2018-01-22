@@ -13,16 +13,10 @@ int main(){
     for (int f=0; f<L; f++){
         for (int t=0; t<triangulos; t++)
             for (int c=t?1:0; c<L; c++)
-                if (t %2 == 0 )
-                  if (f == c)
+                if ((t %2 == 0 && f == c ) || (t%2  && f+c == L))
                       printf("*");
                   else
                       printf(" ");
-                else
-                    if (f+c == L)
-                        printf("*");
-                    else
-                        printf(" ");
         printf("\n");
     }
 
