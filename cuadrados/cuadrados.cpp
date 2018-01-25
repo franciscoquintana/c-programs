@@ -5,11 +5,8 @@
 
 bool is_dotted(int f, int c, int S)
 {
-    if ((f/S)%2 == 0 && (c/S)%2 == 0)
+    if (((f/S)%2 == 0 && (c/S)%2 == 0) || ((f/S)%2 != 0 && (c/S)%2 != 0))
       return 1;
-    else if ((f/S)%2 != 0 && (c/S)%2 != 0)
-      return 1;
-
     return 0;
 }
 int main(){
