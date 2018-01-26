@@ -12,18 +12,25 @@ void ver( int N, int C,double a[max][max]){
 }
 
 void preguntaIncognitas(int *n, int *c) {
-    printf("Numero de incognitas: ");
-    scanf("%i",n);
-    *c = *n+1;
+    do {
+      printf("Numero de incognitas: ");
+      scanf("%i",n);
+      *c = *n+1;
+    } while ( (*n <1 || *n > max));
 }
 
 void preguntaDatos(int N, int C,double a[max][max]) {
-    for (int f=0; f<N; f++)
+    for (int f=0; f<N; f++) {
+        printf("Ecuacion %i\n",f+1);
         for (int c=0; c<C; c++) {
-            printf("Introduce (%i,%i): ",f,c);
+            if(c+1 == C)
+                printf("Introduce el resultado: ");
+            else
+              printf("Introduce la incognita %i: ",c+1);
             scanf("%lf", &a[f][c]);
+      }
+      printf("\n");
     }
-
 }
 
 int main(){
@@ -37,7 +44,7 @@ int main(){
     for(int n =0; n<N; n++) {
         temp = a[n][n];
         for (int c=0; c<C; c++)
-            a[n][c]= a[n][c]/temp;
+            a[n][c] /= temp;
         for(int f = n+1; f<N; f++) {
             temp = a[f][n];
             for (int c=0; c<C; c++)
@@ -45,7 +52,7 @@ int main(){
         }
     }
 
-    //ver(N,C,a);
+    ver(N,C,a);
 
     for (int i=N-1; i>=0; i--) {
         temp = a[i][i+1];
