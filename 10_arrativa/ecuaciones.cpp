@@ -1,11 +1,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
-#define N 2
-#define C 3
-void ver(double a[N][C]){
-    printf("\n");
+#define max 100
+void ver( int N, int C,double a[max][max]){
     for (int f=0; f<N; f++){
         for (int c=0; c<C; c++)
             printf("%6.2lf", a[f][c]);
@@ -14,12 +11,27 @@ void ver(double a[N][C]){
     printf("\n");
 }
 
-int main(){
+void preguntaIncognitas(int *n, int *c) {
+    printf("Numero de incognitas: ");
+    scanf("%i",n);
+    *c = *n+1;
+}
 
-    double a[N][C] = {
-        {2,4,5},
-        {6,3,8}
-    }, temp, incognitas[N];
+void preguntaDatos(int N, int C,double a[max][max]) {
+    for (int f=0; f<N; f++)
+        for (int c=0; c<C; c++) {
+            printf("Introduce (%i,%i): ",f,c);
+            scanf("%lf", &a[f][c]);
+    }
+
+}
+
+int main(){
+    int N,C;
+    preguntaIncognitas(&N,&C);
+
+    double a[max][max], temp, incognitas[N];
+    preguntaDatos(N,C,a);
     int index = N;
 
     for(int n =0; n<N; n++) {
@@ -33,7 +45,7 @@ int main(){
         }
     }
 
-    ver(a);
+    //ver(N,C,a);
 
     for (int i=N-1; i>=0; i--) {
         temp = a[i][i+1];
@@ -44,6 +56,6 @@ int main(){
 
     for (int i =0; i<N; i++)
         printf("La incognita %i vale: %.2f\n",i+1,incognitas[i]);
-    
+
 	return EXIT_SUCCESS;
 }
