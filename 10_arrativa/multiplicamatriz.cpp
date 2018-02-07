@@ -3,14 +3,12 @@
 #include <stdio.h>
 
 #define max 100
-int Af =3;
-int Comun;
-int Bc =2;
+int Af, Comun, Bc;
 
-void ver(double a[max][max]){
-    for (int f=0; f<Af; f++){
-        for (int c=0; c<Comun; c++)
-            printf("%6.2lf", a[f][c]);
+void ver(int A, int C,double m[max][max]){
+    for (int f=0; f<A; f++){
+        for (int c=0; c<C; c++)
+            printf("%6.2lf", m[f][c]);
         printf("\n");
     }
     printf("\n");
@@ -35,6 +33,7 @@ void preguntaDatos(int F, int C,double a[max][max]) {
       }
       printf("\n");
     }
+    ver(F,C,a);
 }
 
 int main(){
@@ -44,16 +43,17 @@ int main(){
 
     printf("Matriz 1:\n");
     preguntaDatos(Af,Comun,a);
+
     printf("Matriz 2:\n");
     preguntaDatos(Comun,Bc,b);
 
     for (int i=0; i<Af; i++)
-        for(int j=0; j<Comun; j++) {
+        for(int j=0; j<Bc; j++) {
             r[i][j] = 0;
             for (int k=0; k<Comun; k++)
               r[i][j] += a[i][k] * b[k][j];
         }
-    ver(r);
+    ver(Af,Bc,r);
 
 	return EXIT_SUCCESS;
 }
