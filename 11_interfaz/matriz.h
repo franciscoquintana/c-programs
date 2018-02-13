@@ -3,8 +3,8 @@
 
 struct matriz {
     double **m;
-    int   fila;
-   int columna;
+    int   filas;
+   int columnas;
 };
 
 
