@@ -27,6 +27,7 @@ int main(){
     //createHandler();
     //getmaxyx(stdscr, nlines, ncols);
     keypad(stdscr, TRUE);
+    noecho();
     mvaddch( 5, 3, 'a');
     //wrefresh(win);
     int ch;
@@ -56,13 +57,13 @@ int main(){
                 mvprintw(0,0, "EXIT");
                 break;
         }
-        if(close)
-        break;
         move(y, x);
         refresh();
+        if(close)
+            break;
     }
+    sleep(1);
 
-    sleep(20000);
     endwin();
     return EXIT_SUCCESS;
 }
