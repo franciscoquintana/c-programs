@@ -1,0 +1,20 @@
+#ifndef __INTERFAZ_H__
+#define __INTERFAZ_H__
+
+#include "global.h"
+#include <curses.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void pintar(int matriz[M][N]);
+void poblacion_inicial(int matriz[M][N]);
+void rellena(int matriz[M][N]);
+void initUI();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
