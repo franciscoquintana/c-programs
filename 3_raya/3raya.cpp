@@ -21,6 +21,8 @@ int tablero[M][N];
 
 int x=0, y=Y_GAME, p =0;
 
+int fila =0, columna=0;
+
 int checkcords(int y, int x) {
     if(x < 0 || y < Y_GAME || x > (N-1)*SEPARA_GAME  || y > ((M-1)*SEPARA_GAME ) + Y_GAME )
         return 0;
@@ -56,8 +58,6 @@ void rellena(int a[M][N]) {
     }
 }
 int checkGAME() {
-    int fila = (y- Y_GAME)/SEPARA_GAME;
-    int columna = x/SEPARA_GAME;
     int valcelda = jugador + 1;
 
     //pos vertical, horizontal, diagonal1, diagonal2;
@@ -126,9 +126,8 @@ void cambiarJ(bool *finish) {
     jugador = jugador ? J1 : J2;
     mvprintw(4,0,"Jugador: %i",jugador + 1);
     if(IA && jugador == J2) {
-        int y, x;
-        calc(&y, &x);
-        tablero[y][x] = 2;
+        calc(&fila, &columna);
+        tablero[fila][columna] = 2;
         cambiarJ(finish);
     }
 
@@ -176,6 +175,8 @@ int main(){
                 int *celda = &tablero[(y- Y_GAME)/SEPARA_GAME][x/SEPARA_GAME];
                 if(*celda == 0) {
                     *celda = (jugador + 1);
+                    fila = (y- Y_GAME)/SEPARA_GAME;
+                    columna = x/SEPARA_GAME;
                     cambiarJ(&finish);
                 }
                 break;
