@@ -4,10 +4,15 @@
 #include <stdio_ext.h>
 #include "3raya.h"
 #include "ia.h"
+#include "interfaz.h"
 
 #define N_MOVES 4
 #define Y_GAME 5
 #define SEPARA_GAME 4
+
+#define CHAR_X "🗙"
+#define CHAR_ "○"
+
 
 bool IA = false;
 
