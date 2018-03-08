@@ -63,17 +63,17 @@ int checkGAME() {
     int valcelda = tablero[fila][columna];
 
     //pos vertical, horizontal, diagonal1, diagonal2;
-    int posibilidades[4];
+    int posibilidades[4] = {0,0,0,0};
     for(int f=0; f<M; f++)
        for(int c=0; c<N; c++)
-           if(tablero[fila][columna] == valcelda) {
-              if((f+1 == fila || f-1 == fila) && c == columna)
+           if(tablero[f][c] == valcelda && !(f == fila && c == columna)) {
+              if(c == columna)
                   posibilidades[0]++;
-              else if((c+1 == columna || c-1 == columna) && f == fila)
+              else if(f == fila)
                   posibilidades[1]++;
-              else if((c-1 == columna && f-1 == fila) || (c+1 == columna && f+1 == fila))
+              else if((c - columna == f - fila) || columna - c  == fila - f)
                   posibilidades[2]++;
-              else if((c-1 == columna && f+1 == fila) || (c+1 == columna && f-1 == fila))
+              else if(c - columna == fila - f || columna - c == f - fila)
                   posibilidades[3]++;
            }
 
@@ -131,12 +131,17 @@ int main(){
                             cambiarJ();
                             break;
                         case FINISH:
+                            erase();
+                            header();
+                            mvprintw(10,2,"NO HA GANADO NINGUN JUGADOR");
+                            refresh();
+                            sleep(2);
                             finish = true;
                             break;
                         case WIN:
                             erase();
                             header();
-                            mvprintw(10,0,"HAS GANADO JUGADOR: %i", jugador + 1);
+                            mvprintw(10,2,"HAS GANADO JUGADOR: %i", jugador + 1);
                             refresh();
                             sleep(5);
                             finish = true;
