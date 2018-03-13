@@ -148,6 +148,7 @@ void preguntaNJ() {
     if (numero == 1)
         IA = true;
 }
+
 int main(){
 
     setlocale(LC_ALL,"");
