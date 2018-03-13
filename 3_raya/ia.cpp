@@ -93,6 +93,7 @@ void calc(int *y, int *x) {
     int **Moves = NULL;
     int amount = 0;
     int max = -1;
+    srand(time(NULL));
     for(int i = 0; i < Vcantidad; i++) {
         int *tempmove = *(VMoves + i);
         int y = *tempmove;
