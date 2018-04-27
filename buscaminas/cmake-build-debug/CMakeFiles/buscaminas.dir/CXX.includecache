@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/student/fquintana/work/c-programs/buscaminas/main.cpp
+iostream
+-
+ncurses.h
+-
+tablero.h
+/home/student/fquintana/work/c-programs/buscaminas/tablero.h
+
+/home/student/fquintana/work/c-programs/buscaminas/tablero.cpp
+cstdlib
+-
+strings.h
+-
+tablero.h
+/home/student/fquintana/work/c-programs/buscaminas/tablero.h
+
+/home/student/fquintana/work/c-programs/buscaminas/tablero.h
+

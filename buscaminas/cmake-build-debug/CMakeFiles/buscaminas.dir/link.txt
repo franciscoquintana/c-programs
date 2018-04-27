@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/buscaminas.dir/main.cpp.o CMakeFiles/buscaminas.dir/tablero.cpp.o  -o buscaminas -lncursesw 

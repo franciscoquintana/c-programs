@@ -1,0 +1,3 @@
+/home/student/fquintana/work/c-programs/buscaminas/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/student/fquintana/work/c-programs/buscaminas/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/student/fquintana/work/c-programs/buscaminas/cmake-build-debug/CMakeFiles/buscaminas.dir

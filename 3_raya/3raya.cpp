@@ -5,20 +5,20 @@
 #include "3raya.h"
 #include "ia.h"
 #include "interfaz.h"
+#include "tablero.h"
 
 #define N_MOVES 4
 #define Y_GAME 5
 #define SEPARA_GAME 4
 
 #define CHAR_X "🗙"
-#define CHAR_ "○"
+#define CHAR_O "○"
+#define CHAR_B "█"
 
 
 bool IA = false;
 
 enum Jugador {J1, J2};
-
-enum STATE {FINISH, WIN, PLAYING};
 
 Jugador jugador = J1;
 
@@ -51,8 +51,15 @@ void header(){
 
 void ver(int a[M][N]){
     for (int f=0; f<M; f++){
-        for (int c=0; c<N; c++)
-            mvprintw((f * SEPARA_GAME) + Y_GAME, c * SEPARA_GAME,"%i", a[f][c]);
+        for (int c=0; c<N; c++) {
+            int value = a[f][c];
+            char* character = CHAR_B;
+            if(value == 2)
+                character = CHAR_O;
+            else if (value == 1)
+                character = CHAR_X;
+            mvprintw((f * SEPARA_GAME) + Y_GAME, c * SEPARA_GAME,"%s", character);
+        }
     }
 }
 
@@ -62,63 +69,24 @@ void rellena(int a[M][N]) {
             a[f][c] = 0;
     }
 }
-int checkGAME() {
-    int valcelda = jugador + 1;
-
-    //pos vertical, horizontal, diagonal1, diagonal2;
-    int posibilidades[4] = {0,0,0,0};
-    for(int f=0; f<M; f++)
-        for(int c=0; c<N; c++)
-            if(tablero[f][c] == valcelda && !(f == fila && c == columna)) {
-                if(c == columna)
-                    posibilidades[0]++;
-                else if(f == fila)
-                    posibilidades[1]++;
-                else if((c - columna == f - fila) || columna - c  == fila - f)
-                    posibilidades[2]++;
-                else if(c - columna == fila - f || columna - c == f - fila)
-                    posibilidades[3]++;
-            }
-
-    for(int i=0; i<4; i++)
-        if(posibilidades[i] == 2)
-            return WIN;
-
-    int cuenta0 = 0;
-
-    for (int f=0; f<M; f++)
-        for (int c=0; c<N; c++) {
-            int value = tablero[f][c];
-            if (value == 0)
-                cuenta0++;
-        }
-
-    if(cuenta0 == 0)
-        return FINISH;
-
-    return PLAYING;
-}
 int updateGAME(bool *finish) {
-    switch(checkGAME()) {
-        case PLAYING:
-            return 0;
-            break;
-        case FINISH:
+    if(!checkFin())
+        return 0;
+    int winner = Winner();
+    if(winner == -1) {
             erase();
             header();
             mvprintw(10,2,"NO HA GANADO NINGUN JUGADOR");
             refresh();
             sleep(2);
             *finish = true;
-            break;
-        case WIN:
+    } else {
             erase();
             header();
-            mvprintw(10,2,"HAS GANADO JUGADOR: %i", jugador + 1);
+            mvprintw(10,2,"HAS GANADO JUGADOR: %i", winner + 1);
             refresh();
             sleep(5);
             *finish = true;
-            break;
     }
     return 1;
 }
