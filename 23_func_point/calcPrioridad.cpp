@@ -56,7 +56,7 @@ int popFifo(Pila *pila) {
     int value = pila->data[0];
     --pila->cima;
     for(int i = 0; i< pila->cima; i++)
-      pila->data[i] = pila->data[i+1];
+        pila->data[i] = pila->data[i+1];
     error = 0;
     return value;
 }
@@ -92,11 +92,11 @@ bool remove(Pila *pila, int index){
 }
 
 int get(Pila *pila, int index) {
-  if(index >= pila->cima )
-      return 0;
-  int value = pila->data[index];
-  remove(pila, index);
-  return value;
+    if(index >= pila->cima )
+        return 0;
+    int value = pila->data[index];
+    remove(pila, index);
+    return value;
 }
 
 double sum(double op1, double op2) { return op1 + op2; }
@@ -104,26 +104,26 @@ double res(double op1, double op2) { return op1 - op2; }
 double mul(double op1, double op2) { return op1 * op2; }
 double div(double op1, double op2) { return op1 / op2; }
 
-    Operacion catalogo[] = {
-        {"suma",  &sum},
-        {"resta", &res},
-        {"multiplacion", &mul},
-        {"division", &div}
-    };
+Operacion catalogo[] = {
+    {"+",  &sum},
+    {"-", &res},
+    {"*", &mul},
+    {"/", &div}
+};
 
 bool searchOperaMulDiv(Pila *op, Pila *datos) {
     double op1, op2;
-  for(int i = 0; i < op->cima; i++) {
+    for(int i = 0; i < op->cima; i++) {
         int opera = op->data[i];
         if(opera == division || opera == multi) {
-          double (*operacion)(double op1, double op2);
-          op1 = get(datos, i);
-          op2 = get(datos, i);
-          operacion = catalogo[opera].op;
-          int resultado = (operacion)(op1, op2);
-          addFifo(datos, i, resultado);
-          remove(op, i);
-          return true;
+            double (*operacion)(double op1, double op2);
+            op1 = get(datos, i);
+            op2 = get(datos, i);
+            operacion = catalogo[opera].op;
+            int resultado = (operacion)(op1, op2);
+            addFifo(datos, i, resultado);
+            remove(op, i);
+            return true;
         }
     }
     return false;
@@ -164,20 +164,29 @@ int main(){
         else
             ungetc(c, stdin);
 
-    } while (!finish);
+    } while (!finish && datos.cima < MAX);
+
+    //Print info opera a realizar
+    printf("Se va a realizar la operacion: %i", datos.data[0]);
+
+    for (int i=0; i< op.cima; i++) {
+      printf("%s%i", catalogo[op.data[i]].nombre, datos.data[i+1]);
+    }
+
+    printf("\n");
 
     do {
-      finish = !searchOperaMulDiv(&op, &datos);
+        finish = !searchOperaMulDiv(&op, &datos);
     } while (!finish);
 
     while(op.cima != 0) {
-      double (*operacion)(double op1, double op2);
-      op1 = popFifo(&datos);
-      op2 = popFifo(&datos);
-      operacion = catalogo[popFifo(&op)].op;
-      int resultado = (operacion)(op1, op2);
-      //printf("resultado %i\n", resultado);
-      addFifo(&datos, 0, resultado);
+        double (*operacion)(double op1, double op2);
+        op1 = popFifo(&datos);
+        op2 = popFifo(&datos);
+        operacion = catalogo[popFifo(&op)].op;
+        int resultado = (operacion)(op1, op2);
+        //printf("resultado %i\n", resultado);
+        addFifo(&datos, 0, resultado);
 
     }
 
