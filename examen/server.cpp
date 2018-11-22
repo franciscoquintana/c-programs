@@ -88,6 +88,8 @@ void init_server(int loopback, int port) {
                 close (STDOUT_FILENO);
                 handle_client(client_fd);
                 close (sock_fd);
+                close(client_fd);
+                exit(0);
             }
         }
 
