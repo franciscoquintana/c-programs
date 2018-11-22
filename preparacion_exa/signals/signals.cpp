@@ -10,7 +10,7 @@ int close_p = 0;
 void handler(int sig) {
     close_p = 1;
 
-    printf("Nos vamos a cerrar");
+    printf("Nos vamos a cerrar, deberiamos cerrar los sockets\n");
 }
 
 int main(){
@@ -18,7 +18,7 @@ int main(){
     bzero(&sa, sizeof(sa));
     sa.sa_handler = &handler;
 
-    sigaction(SIGUSR1, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
     printf("%i\n", getpid());
     while(!close_p) {
 

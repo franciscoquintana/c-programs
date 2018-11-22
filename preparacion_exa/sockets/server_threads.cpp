@@ -6,8 +6,10 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
-void handle_client(int client_fd) {
+void * handle_client(void * client_fd_p) {
+    int client_fd = *(int *) client_fd_p;
     bool finish = false;
     do {
         int count;
@@ -22,7 +24,7 @@ void handle_client(int client_fd) {
         }
     } while(!finish);
     close(client_fd);
-
+    return NULL;
 }
 
 int main(){
@@ -50,8 +52,11 @@ int main(){
 
         int client_fd = accept(sock_fd, (struct sockaddr *) &addr, &size);
 
-        if(client_fd != -1)
-            handle_client(client_fd);
+        if(client_fd != -1) {
+            pthread_t hilo;
+            pthread_create(&hilo, NULL, &handle_client, &client_fd);
+
+        }
     } while(true);
     close(sock_fd);
     return EXIT_SUCCESS;
