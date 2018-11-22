@@ -6,11 +6,26 @@
 #define R 0
 #define W 1
 
+void clean_child(int signal) {
+    int code;
+    wait(&code);
+}
+
+void prepare_handler_child() {
+    struct sigaction sigchld_act;
+
+    memset(&sigchld_act, 0, sizeof(sigchld_act));
+    sigchld_act.sa_handler = &clean_child;
+    sigaction(SIGCHLD, &sigchld_act, NULL);
+}
+
 void handle_client(int client_fd) {
     int fd[2][2];
 
     pipe(fd[0]);
     pipe(fd[1]);
+
+    prepare_handler_child();
 
     pid_t sort_id = fork();
 
@@ -18,16 +33,20 @@ void handle_client(int client_fd) {
         close(fd[0][R]);
         close(fd[1][W]);
 
-        //Abrimos la pipe de lectura
-        FILE *stream_sort = fdopen(fd[1][R], "r");
-
         char * palabras = leeStr(client_fd);
-        write(fd[0][W], palabras, sizeof(palabras));
+
+        int size = strlen(palabras);
+
+        write(fd[0][W], palabras, size * sizeof(char));
+
+        //Cerramos la pipe para que el sort sepa que hemos terminado de escribir
+        close(fd[0][W]);
+
+        read(fd[1][R], palabras, size * sizeof(char));
+        enviaStr(client_fd, palabras);
         free(palabras);
 
-        char buffer[GRANDE];
-        fscanf(stream_sort, "%s", buffer);
-        enviaStr(client_fd, buffer);
+        close(fd[1][R]);
 
     }
     else {
@@ -35,6 +54,9 @@ void handle_client(int client_fd) {
         close(client_fd);
         close(fd[0][W]);
         close(fd[1][R]);
+
+        int test[2];
+        pipe(test);
 
         dup2(fd[0][R], STDIN_FILENO);
         dup2(fd[1][W], STDOUT_FILENO);
@@ -69,7 +91,7 @@ void init_server(int loopback, int port) {
         exit(1);
     }
 
-    listen(sock_fd, 1);
+    listen(sock_fd, 2);
 
     do {
         socklen_t size = sizeof(addr);
@@ -92,22 +114,9 @@ void init_server(int loopback, int port) {
                 exit(0);
             }
         }
-
+    //Poner una condición de salida ?
     } while(true);
     close(sock_fd);
-}
-
-void clean_child(int signal) {
-    int code;
-    wait(&code);
-}
-
-void prepare_handler_child() {
-    struct sigaction sigchld_act;
-
-    memset(&sigchld_act, 0, sizeof(sigchld_act));
-    sigchld_act.sa_handler = &clean_child;
-    sigaction(SIGCHLD, &sigchld_act, NULL);
 }
 
 int main (int argc, char* argv[])

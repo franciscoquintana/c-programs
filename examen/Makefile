@@ -10,7 +10,7 @@ client: client.o common.o
 	$(CC) $(CFLAGS) -o client client.o common.o
 
 server: server.o common.o
-	$(CC) $(CFLAGS) -o server server.o common.o -g
+	$(CC) $(CFLAGS) -o server server.o common.o
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $<
