@@ -1,4 +1,5 @@
 #include "sprite_render.h"
+#include "font_render.h"
 #include "console.h"
 #include "pthread.h"
 #include <sys/time.h>
@@ -32,13 +33,20 @@ void *render(void *param) {
 
     init_sprite_render(&render);
 
-    render.max_x = background.image.width;
-    render.max_y = background.image.height;
+    Font font;
+
+    init_font(&font, (char *) "/home/fquintana/Lat2-Terminus16.psfu.gz");
+
+
+//    render.max_x = background.image.width;
+//    render.max_y = background.image.height;
 
     int now;
     int lastFrame = getTimeMs();
 
     int msMax = 1000/30;
+
+    //printSprite(render, 0, 0, background);
 
     while(!finish_program) {
         now = getTimeMs();
@@ -56,11 +64,12 @@ void *render(void *param) {
             printSpriteRotate(render, coche.x, coche.y, sprite, coche.angle *180/3.141593 );
         }
 
-
+        renderStr(render, font, 0, 0, "arriba espana");
     }
 
     free_render(&render);
     free_image(sprite.image);
+    return NULL;
 }
 
 void moveCoche(Coche *coche, Sprite_Render render)
@@ -95,6 +104,7 @@ int main() {
 
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGBUS, &sa, NULL);
 
     float maxSpeed = 12.0;
     float acc=0.2, dec=0.3;
@@ -170,11 +180,11 @@ int main() {
 
         moveCoche(&coche, render);
 
-        //printf("%f\n", coche.angle);
-
         coches[0] = coche;
     }
+
     reset_input_mode();
+
     pthread_join(keyboard_thread, NULL);
     pthread_join(render_thread, NULL);
     

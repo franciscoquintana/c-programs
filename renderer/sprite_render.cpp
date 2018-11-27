@@ -16,6 +16,7 @@ void printSpriteRotate(Sprite_Render render, int x_pos, int y_pos, Sprite sprite
 }
 
 void printSprite(Sprite_Render render, int x_pos, int y_pos, Sprite sprite) {
+
     int height = (int) render.max_y < sprite.image.height ? render.max_y : sprite.image.height;
     int width = (int) render.max_x < sprite.image.width ? render.max_x : sprite.image.width;
 
@@ -68,16 +69,18 @@ void init_sprite_render(Sprite_Render *render) {
         exit(3);
     }
 
-    int screensize = render->vinfo.xres * render->vinfo.yres * (render->vinfo.bits_per_pixel / 8) ;
+    int screensize = render->vinfo.xres * render->vinfo.yres * (render->vinfo.bits_per_pixel / 8) * render->finfo.line_length;
 
     // Map the device to memory
-    char * fb_map = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_SHARED, fd_fb, 0);
+    char * fb_map = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fd_fb, 0);
     if (fb_map ==  (char *) -1) {
         perror("Error: failed to map framebuffer device to memory");
         exit(4);
     }
 
     render->fd_fb = fd_fb;
+    //render->fb_real = fb_map;
+    //render->fb_map = (char *) malloc(screensize);
     render->fb_map = fb_map;
     render->screensize = screensize;
     render->max_x = render->vinfo.xres;
