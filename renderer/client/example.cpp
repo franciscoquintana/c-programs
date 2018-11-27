@@ -18,13 +18,6 @@ typedef struct {
 Coche *coches;
 int numCoches;
 
-int getTimeMs() {
-    struct timeval  tv;
-    gettimeofday(&tv, NULL);
-
-    return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
-}
-
 void *render(void *param) {
     Sprite background = load_sprite((char *) "background.png");
     Sprite sprite = load_sprite((char *) "car.png");
@@ -79,12 +72,6 @@ void moveCoche(Coche *coche, Sprite_Render render)
 
     if (coche->x < 0)
         coche->x = 0;
-    
-    if (coche->x > (int) render.vinfo.xres)
-        coche->x = render.vinfo.xres;
-
-    if (coche->y > (int) render.vinfo.yres)
-        coche->y = render.vinfo.yres;
 
     if (coche->y < 0)
         coche->y = 0;

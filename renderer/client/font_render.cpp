@@ -62,14 +62,14 @@ void init_font(Font *font_str, char *path) {
 	if (!len && gzeof(font)) errx(EX_DATAERR, "%s: missing glyphs", fontPath);
 	if (!len) errx(EX_IOERR, "%s", gzerror(font, NULL));
 
-	gzclose(font);
-
-        unsigned short *unicode = (unsigned short*) calloc(USHRT_MAX, 2);
-        char *buffer = (char*) malloc(USHRT_MAX * sizeof(char));
+        /*unsigned short *unicode = (unsigned short*) calloc(USHRT_MAX, 2);
+        char *buffer = (char*) malloc(INT_MAX * sizeof(char));
 
         int actual_glyph = 0;
 
-        int len_unicode = gzread(font, buffer, USHRT_MAX);
+        int len_unicode = gzread(font, buffer, INT_MAX);
+        if (!len_unicode) errx(EX_IOERR, "%s", gzerror(font, NULL));
+
         buffer = (char *) realloc(buffer, (len_unicode + 1) * sizeof(char));
         buffer[len_unicode] = '\0';
         
@@ -80,7 +80,6 @@ void init_font(Font *font_str, char *path) {
                 buffer++;
                 continue;
             } else if(uc & 128) {
-                /* UTF-8 to unicode */
                 if((uc & 32) == 0 ) {
                     uc = ((buffer[0] & 0x1F)<<6)+(buffer[1] & 0x3F);
                     buffer++;
@@ -97,7 +96,9 @@ void init_font(Font *font_str, char *path) {
             }
             unicode[uc] = actual_glyph;
             buffer++;
-        }
+        }*/
+
+gzclose(font);
 
     font_str->header = header;
 
