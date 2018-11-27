@@ -69,7 +69,8 @@ void init_sprite_render(Sprite_Render *render) {
         exit(3);
     }
 
-    int screensize = render->vinfo.xres * render->vinfo.yres * (render->vinfo.bits_per_pixel / 8) * render->finfo.line_length;
+    int screensize = render->vinfo.xres * render->vinfo.yres * (render->vinfo.bits_per_pixel / 8);
+    //int screensize = (render->vinfo.xres -1) * (render->vinfo.bits_per_pixel / 8) + (render->vinfo.yres - 1) * render->finfo.line_length;
 
     // Map the device to memory
     char * fb_map = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fd_fb, 0);

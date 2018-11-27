@@ -35,7 +35,7 @@ void *render(void *param) {
 
     Font font;
 
-    init_font(&font, (char *) "/home/fquintana/Lat2-Terminus16.psfu.gz");
+    init_font(&font, (char *) "Lat2-Terminus16.psfu.gz");
 
 
 //    render.max_x = background.image.width;
@@ -64,7 +64,7 @@ void *render(void *param) {
             printSpriteRotate(render, coche.x, coche.y, sprite, coche.angle *180/3.141593 );
         }
 
-        renderStr(render, font, 0, 0, "arriba espana");
+        renderStr(render, font, 0, 0, "test");
     }
 
     free_render(&render);

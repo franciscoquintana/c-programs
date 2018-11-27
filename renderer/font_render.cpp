@@ -28,48 +28,84 @@ void renderStr(Sprite_Render render, Font font, int init_x, int init_y, const ch
     }
 }
 
-void init_font(Font *font, char *path) {
+void init_font(Font *font_str, char *path) {
     size_t len;
 
-    const char *fontPath = getenv("FONT");
-    if (!fontPath) {
-        fontPath = path;
-    }
+	const char *fontPath = getenv("FONT");
+	if (!fontPath) {
+		fontPath = "Lat2-Terminus16.psfu.gz";
+	}
 
-    gzFile fontFile = gzopen(fontPath, "r");
-    if (!font) err(EX_NOINPUT, "%s", fontPath);
+	gzFile font = gzopen(fontPath, "r");
+	if (!font) err(EX_NOINPUT, "%s", fontPath);
 
-    PSF2Header header;
-    len = gzfread(&header, sizeof(header), 1, fontFile);
-    if (!len && gzeof(fontFile)) errx(EX_DATAERR, "%s: missing header", fontPath);
-    if (!len) errx(EX_IOERR, "%s", gzerror(fontFile, NULL));
+	PSF2Header header;
+	len = gzfread(&header, sizeof(header), 1, font);
+	if (!len && gzeof(font)) errx(EX_DATAERR, "%s: missing header", fontPath);
+	if (!len) errx(EX_IOERR, "%s", gzerror(font, NULL));
 
-    if (header.magic != PSF2Magic) {
-        errx(
-                EX_DATAERR, "%s: invalid header magic %08X",
-                fontPath, header.magic
-            );
-    }
-    if (header.headerSize != sizeof(PSF2Header)) {
-        errx(
-                EX_DATAERR, "%s: weird header size %d",
-                fontPath, header.headerSize
-            );
-    }
+	if (header.magic != PSF2Magic) {
+		errx(
+			EX_DATAERR, "%s: invalid header magic %08X",
+			fontPath, header.magic
+		);
+	}
+	if (header.headerSize != sizeof(PSF2Header)) {
+		errx(
+			EX_DATAERR, "%s: weird header size %d",
+			fontPath, header.headerSize
+		);
+	}
 
-    int glyphs[128][header.glyphSize];
-    len = gzfread(glyphs, header.glyphSize, 128, fontFile);
-    if (!len && gzeof(fontFile)) errx(EX_DATAERR, "%s: missing glyphs", fontPath);
-    if (!len) errx(EX_IOERR, "%s", gzerror(fontFile, NULL));
+        char glyphs[header.glyphCount][header.glyphSize];
+	len = gzfread(glyphs, header.glyphSize, header.glyphCount, font);
+	if (!len && gzeof(font)) errx(EX_DATAERR, "%s: missing glyphs", fontPath);
+	if (!len) errx(EX_IOERR, "%s", gzerror(font, NULL));
 
-    gzclose(fontFile);
+	gzclose(font);
 
-    font->header = header;
+        unsigned short *unicode = (unsigned short*) calloc(USHRT_MAX, 2);
+        char *buffer = (char*) malloc(USHRT_MAX * sizeof(char));
 
-    font->glyphs = (int **) malloc(128 * sizeof(int *));
-    for(int i = 0; i < 128; i++) {
-        font->glyphs[i] = (int *) malloc(header.glyphSize *  sizeof(int));
-        memcpy(font->glyphs[i], glyphs[i], sizeof(int) * header.glyphSize);
+        int actual_glyph = 0;
+
+        int len_unicode = gzread(font, buffer, USHRT_MAX);
+        buffer = (char *) realloc(buffer, (len_unicode + 1) * sizeof(char));
+        buffer[len_unicode] = '\0';
+        
+        while(strlen(buffer) != 0) {
+            unsigned short uc = (unsigned short)buffer[0];
+            if(uc == 0xFF) {
+                actual_glyph++;
+                buffer++;
+                continue;
+            } else if(uc & 128) {
+                /* UTF-8 to unicode */
+                if((uc & 32) == 0 ) {
+                    uc = ((buffer[0] & 0x1F)<<6)+(buffer[1] & 0x3F);
+                    buffer++;
+                } else
+                if((uc & 16) == 0 ) {
+                    uc = ((((buffer[0] & 0xF)<<6)+(buffer[1] & 0x3F))<<6)+(buffer[2] & 0x3F);
+                    buffer+=2;
+                } else
+                if((uc & 8) == 0 ) {
+                    uc = ((((((buffer[0] & 0x7)<<6)+(buffer[1] & 0x3F))<<6)+(buffer[2] & 0x3F))<<6)+(buffer[3] & 0x3F);
+                    buffer+=3;
+                } else
+                    uc = 0;
+            }
+            unicode[uc] = actual_glyph;
+            buffer++;
+        }
+
+    font_str->header = header;
+
+    font_str->glyphs = (int **) malloc(header.glyphCount * sizeof(int *));
+    for(int i = 0; i < header.glyphCount; i++) {
+        font_str->glyphs[i] = (int *) malloc(header.glyphSize *  sizeof(int));
+        for(int g =0; g<header.glyphSize; g++)
+            font_str->glyphs[i][g] = (int) glyphs[i][g];
     }
 }
 
