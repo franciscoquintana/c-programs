@@ -13,7 +13,7 @@ typedef struct {
 } UuidClient;
 
 typedef struct {
-    UuidClient *map;
+    UuidClient map[];
     int size;
 } UuidMap;
 

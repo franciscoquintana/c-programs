@@ -3,10 +3,12 @@
 #include <sys/wait.h>
 #include <math.h>
 #include <pthread.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
 #include "../common/common.h"
 #include "../common/uuid_map.h"
 
-UuidMap clientMap;
+UuidMap *clientMap;
 
 void clean_child(int signal) {
     int code;
@@ -42,8 +44,9 @@ void* partida_thread(void* arg) {
     int lastFrame = getTimeMs();
     int msMax = 1000/30;
 
-    while(true) {
 
+    printf("%i\n", getpid());
+    while(true) {
         now = getTimeMs();
         int delta = now - lastFrame;
         lastFrame = now;
@@ -52,9 +55,9 @@ void* partida_thread(void* arg) {
             usleep((msMax - delta) * 1000);
         }
 
-        for (int c=0; c<clientMap.size ;c++) {
-            Client *client = &clientMap.map[c].value;
-           if (client->moveinfo.up && client->info.speed<maxSpeed)
+        for (int c=0; c<clientMap->size ;c++) {
+            Client *client = &clientMap->map[c].value;
+            if (client->moveinfo.up && client->info.speed<maxSpeed)
                 client->info.speed += client->info.speed < 0 ? dec :  acc;
 
             if (client->moveinfo.down && client->info.speed>-maxSpeed)
@@ -80,22 +83,23 @@ void* partida_thread(void* arg) {
 
             moveCoche(&client->info);
         }
-      for(int c=0; c<clientMap.size; c++) {
-          Client client = clientMap.map[c].value;
-          write(client.fd, &client.info, sizeof(CarInfo));
-      }
+        for(int c=0; c<clientMap->size; c++) {
+            Client client = clientMap->map[c].value;
+            write(client.fd, &client.info, sizeof(CarInfo));
+        }
     }
 
 }
 
 void handle_client(int client_fd) {
     fprintf(stderr,"%i\n", getpid());
-    sleep(10);
+    //sleep(10);
     Client client;
 
     client.info.x = 200;
     client.info.y = 200;
     client.info.speed = 0;
+    client.info.angle = 0;
 
     client.moveinfo.down = 0;
     client.moveinfo.left = 0;
@@ -108,11 +112,11 @@ void handle_client(int client_fd) {
 
     write(client_fd, &client.info, sizeof(CarInfo));
 
-    insert_uuid_map(&clientMap, client.info.id, client);
+    insert_uuid_map(clientMap, client.info.id, client);
 
     //!Desconectado
     while (true) {
-        Client * client_2 = get_uuid_value(&clientMap, client.info.id);
+        Client * client_2 = get_uuid_value(clientMap, client.info.id);
         read(client_fd, &client_2->moveinfo, sizeof(MoveCar));
     }
 }
@@ -138,7 +142,11 @@ void init_server(int loopback, int port) {
 
     listen(sock_fd, 2);
 
-    init_uuid_map(&clientMap);
+//MAP MEMORY
+    int shared_id = shmget(IPC_PRIVATE, sizeof(UuidMap), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
+    clientMap =(UuidMap *) shmat (shared_id, NULL, 0);
+    init_uuid_map(clientMap);
+
     pthread_create(&hilo, NULL, &partida_thread, NULL);
 
     do {

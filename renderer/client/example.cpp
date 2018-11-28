@@ -24,9 +24,9 @@ void *render(void *param) {
 
     init_sprite_render(&render);
 
-    Font font;
+    //Font font;
 
-    init_font(&font, (char *) "Lat2-Terminus16.psfu.gz");
+    //init_font(&font, (char *) "Lat2-Terminus16.psfu.gz");
 
 
     //    render.max_x = background.image.width;
@@ -49,11 +49,11 @@ void *render(void *param) {
         printSprite(render, 0, 0, background);
 
         for(int i = 0; i < coches.size; i++) {
-            CarInfo coche = coches.map[i].value.info;;
+            CarInfo coche = coches.map[i].value.info;
             printSpriteRotate(render, coche.x, coche.y, sprite, coche.angle *180/3.141593 );
         }
 
-        renderStr(render, font, 0, 0, "test");
+        //renderStr(render, font, 0, 0, "test");
     }
 
     free_render(&render);
@@ -107,7 +107,7 @@ int connect() {
 void *listen(void *arg) {
     int server_fd = *(int *) arg;
 
-    while(true) {
+    while(!finish_program) {
         CarInfo info;
         read(server_fd, &info, sizeof(CarInfo));
         Client *client = get_uuid_value(&coches, info.id);
@@ -144,14 +144,11 @@ int main() {
 
     pthread_t render_thread, keyboard_thread, listen_thread;
 
-    set_input_mode();
     pthread_create(&render_thread, NULL, &render, NULL);
 
     pthread_create(&listen_thread, NULL, &listen, (void *) &server_fd);
-
-    Sprite_Render render;
-    init_sprite_render(&render);
-
+    
+    set_input_mode();
     pthread_create(&keyboard_thread, NULL, &readKeyboard, NULL);
 
     int now;
@@ -177,12 +174,17 @@ int main() {
         client->moveinfo.right = get_value(&mapKeys, KEY_D);
         client->moveinfo.down = get_value(&mapKeys, KEY_S);
 
+        write(server_fd, &client->moveinfo, sizeof(MoveCar));
+
     }
-    reset_input_mode();
+    printf("Cerrando principal\n");
+    finish_program = 1;
 
     pthread_join(keyboard_thread, NULL);
+    reset_input_mode();
     pthread_join(render_thread, NULL);
 
+    printf("Principal cerrado\n");
     return 0;
 }
 

@@ -102,5 +102,6 @@ void* readKeyboard(void* param)
         keyCode = 0;
         res = read(0, &keyCode, 1);
     }
+    printf("Read Closed\n");
     return NULL;
 }
