@@ -2,13 +2,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <math.h>
-#include "common.h"
-#include "uuid_map.h"
+#include <pthread.h>
+#include "../common/common.h"
+#include "../common/uuid_map.h"
 
 UuidMap clientMap;
-
-Client *clientes;
-int numClientes;
 
 void clean_child(int signal) {
     int code;
@@ -54,42 +52,45 @@ void* partida_thread(void* arg) {
             usleep((msMax - delta) * 1000);
         }
 
-        for (int c=0; c<numClientes ;c++) {
-            Client client = clientes[c];
+        for (int c=0; c<clientMap.size ;c++) {
+            Client *client = &clientMap.map[c].value;
+           if (client->moveinfo.up && client->info.speed<maxSpeed)
+                client->info.speed += client->info.speed < 0 ? dec :  acc;
 
-            if (client.moveinfo.up && client.info.speed<maxSpeed)
-                client.info.speed += client.info.speed < 0 ? dec :  acc;
+            if (client->moveinfo.down && client->info.speed>-maxSpeed)
+                client->info.speed -= client->info.speed > 0 ? dec : acc;
 
-            if (client.moveinfo.down && client.info.speed>-maxSpeed)
-                client.info.speed -= client.info.speed > 0 ? dec : acc;
-
-            if (!client.moveinfo.up && !client.moveinfo.down)
-                if (client.info.speed - dec > 0) 
-                    client.info.speed -= dec;
-                else if (client.info.speed + dec < 0) 
-                    client.info.speed += dec;
+            if (!client->moveinfo.up && !client->moveinfo.down)
+                if (client->info.speed - dec > 0) 
+                    client->info.speed -= dec;
+                else if (client->info.speed + dec < 0) 
+                    client->info.speed += dec;
                 else 
-                    client.info.speed = 0;
+                    client->info.speed = 0;
 
-            if (client.info.speed != 0) {
-                if (client.moveinfo.right)
-                    client.info.angle += turnSpeed * client.info.speed/maxSpeed;
-                if (client.moveinfo.left)
-                    client.info.angle -= turnSpeed * client.info.speed/maxSpeed;
+            if (client->info.speed != 0) {
+                if (client->moveinfo.right)
+                    client->info.angle += turnSpeed * client->info.speed/maxSpeed;
+                if (client->moveinfo.left)
+                    client->info.angle -= turnSpeed * client->info.speed/maxSpeed;
             }
 
-            if (client.info.angle > 360)
-                client.info.angle = 0;
+            if (client->info.angle > 360)
+                client->info.angle = 0;
 
-            moveCoche(&client.info);
-            clientes[c] = client;
+            moveCoche(&client->info);
         }
-
+      for(int c=0; c<clientMap.size; c++) {
+          Client client = clientMap.map[c].value;
+          write(client.fd, &client.info, sizeof(CarInfo));
+      }
     }
 
 }
 
 void handle_client(int client_fd) {
+    fprintf(stderr,"%i\n", getpid());
+    sleep(10);
     Client client;
 
     client.info.x = 200;
@@ -101,24 +102,23 @@ void handle_client(int client_fd) {
     client.moveinfo.right = 0;
     client.moveinfo.up = 0;
 
-    clientes = (Client *) realloc(clientes, ++numClientes * sizeof(Client));
-    clientes[numClientes] = client;
+    client.fd = client_fd;
 
     uuid_generate_random(client.info.id);
 
     write(client_fd, &client.info, sizeof(CarInfo));
 
-    insert_map(&clientMap, client.info.id, client_fd);
+    insert_uuid_map(&clientMap, client.info.id, client);
 
     //!Desconectado
     while (true) {
-        MoveCar movimiento;
-        read(client_fd, &movimiento, sizeof(MoveCar));
-
+        Client * client_2 = get_uuid_value(&clientMap, client.info.id);
+        read(client_fd, &client_2->moveinfo, sizeof(MoveCar));
     }
 }
 
 void init_server(int loopback, int port) {
+    pthread_t hilo;
     int sock_fd = socket(AF_INET,SOCK_STREAM,0);
 
     struct sockaddr_in addr;
@@ -138,7 +138,8 @@ void init_server(int loopback, int port) {
 
     listen(sock_fd, 2);
 
-    init_map(&clientMap);
+    init_uuid_map(&clientMap);
+//    pthread_create(&hilo, NULL, &partida_thread, NULL);
 
     do {
         socklen_t size = sizeof(addr);

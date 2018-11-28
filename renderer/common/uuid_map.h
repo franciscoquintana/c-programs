@@ -5,23 +5,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <uuid/uuid.h>
-
+#include "../common/common.h"
 
 typedef struct {
     uuid_t key;
-    int value;
-} UuidIntMap;
+    Client value;
+} UuidClient;
 
 typedef struct {
-    void *tree;
+    UuidClient *map;
+    int size;
 } UuidMap;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    void init_map(UuidMap *map);
-    void insert_map(UuidMap *map, uuid_t key, int value);
-    int get_value(UuidMap *map, uuid_t key);
+    void init_uuid_map(UuidMap *map);
+    void insert_uuid_map(UuidMap *map, uuid_t key, Client value);
+    Client *get_uuid_value(UuidMap *map, uuid_t key);
 #ifdef __cplusplus
 }
 #endif

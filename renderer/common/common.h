@@ -23,6 +23,7 @@ typedef struct {
 typedef struct {
   MoveCar moveinfo;
   CarInfo info;
+  int fd;
 } Client;
 
 #ifdef __cplusplus
