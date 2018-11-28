@@ -35,7 +35,7 @@ void moveCoche(CarInfo *coche)
         coche->y = 0;
 }
 
-void* partida_thread(void* arg) {
+void partida_run() {
     float maxSpeed = 12.0;
     float acc=0.2, dec=0.3;
     float turnSpeed= 0.08;
@@ -83,10 +83,6 @@ void* partida_thread(void* arg) {
 
             moveCoche(&client->info);
         }
-        for(int c=0; c<clientMap->size; c++) {
-            Client client = clientMap->map[c].value;
-            write(client.fd, &client.info, sizeof(CarInfo));
-        }
     }
 
 }
@@ -118,6 +114,7 @@ void handle_client(int client_fd) {
     while (true) {
         Client * client_2 = get_uuid_value(clientMap, client.info.id);
         read(client_fd, &client_2->moveinfo, sizeof(MoveCar));
+        write(client_fd, &client_2->info, sizeof(CarInfo));
     }
 }
 
@@ -147,7 +144,11 @@ void init_server(int loopback, int port) {
     clientMap =(UuidMap *) shmat (shared_id, NULL, 0);
     init_uuid_map(clientMap);
 
-    pthread_create(&hilo, NULL, &partida_thread, NULL);
+    pid_t partida = fork();
+    if (partida == 0) {
+        partida_run();
+        exit(0);
+    }
 
     do {
         socklen_t size = sizeof(addr);
