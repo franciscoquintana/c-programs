@@ -145,16 +145,16 @@ int main() {
     pthread_t render_thread, keyboard_thread, listen_thread;
 
     set_input_mode();
-    //pthread_create(&render_thread, NULL, &render, NULL);
+    pthread_create(&render_thread, NULL, &render, NULL);
 
-    //pthread_create(&listen_thread, NULL, &listen, (void *) &server_fd);
+    pthread_create(&listen_thread, NULL, &listen, (void *) &server_fd);
 
     Sprite_Render render;
     init_sprite_render(&render);
 
     pthread_create(&keyboard_thread, NULL, &readKeyboard, NULL);
 
-    /*int now;
+    int now;
     int lastFrame = getTimeMs();
     int msMax = 1000/30;
 
@@ -178,7 +178,6 @@ int main() {
         client->moveinfo.down = get_value(&mapKeys, KEY_S);
 
     }
-*/
     reset_input_mode();
 
     pthread_join(keyboard_thread, NULL);

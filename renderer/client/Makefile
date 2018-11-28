@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -g -I../common/
+CFLAGS = -g -I../common/
 VPATH=../common/
 
 .PHONY: clean

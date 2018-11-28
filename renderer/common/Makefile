@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -g
+CFLAGS = -g
 .PHONY: clean
 
 all: build

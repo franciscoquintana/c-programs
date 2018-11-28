@@ -139,7 +139,7 @@ void init_server(int loopback, int port) {
     listen(sock_fd, 2);
 
     init_uuid_map(&clientMap);
-//    pthread_create(&hilo, NULL, &partida_thread, NULL);
+    pthread_create(&hilo, NULL, &partida_thread, NULL);
 
     do {
         socklen_t size = sizeof(addr);
