@@ -11,7 +11,7 @@ void insert_uuid_map(UuidMap *map, uuid_t key, Client value) {
         memcpy(uuidclient.key, key, sizeof(uuid_t));
         uuidclient.value = value;
 
-        map->map =  (UuidClient *) realloc(map->map, ++map->size * sizeof(UuidClient));
+        //map->map =  (UuidClient *) realloc(map->map, ++map->size * sizeof(UuidClient));
         map->map[map->size - 1] = uuidclient;
     }
     else {
