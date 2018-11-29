@@ -23,6 +23,7 @@ typedef struct {
   int max_x;
   int max_y;
   char *fb_map;
+  char *fb_temp;
 } Sprite_Render;
 
 #ifdef __cplusplus

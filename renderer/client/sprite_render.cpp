@@ -17,24 +17,25 @@ void printSpriteRotate(Sprite_Render render, int x_pos, int y_pos, Sprite sprite
 
 void printSprite(Sprite_Render render, int x_pos, int y_pos, Sprite sprite) {
 
-    int height = (int) render.max_y < sprite.image.height ? render.max_y : sprite.image.height;
-    int width = (int) render.max_x < sprite.image.width ? render.max_x : sprite.image.width;
-
-    for(int y = sprite.y_offset; y < height; y++) {
+    for(int y = sprite.y_offset; y < sprite.image.height; y++) {
         png_bytep row = sprite.image.rows[y];
-        for(int x = sprite.x_offset; x < width; x++) {
-            int location = (x + render.vinfo.xoffset + x_pos) * (render.vinfo.bits_per_pixel/8) +
-                (y + render.vinfo.yoffset + y_pos) * render.finfo.line_length;
+        for(int x = sprite.x_offset; x < sprite.image.width; x++) {
+            if(x + x_pos - sprite.x_offset > render.max_x ||  y + y_pos - sprite.y_offset > render.max_y
+                    || x + x_pos - sprite.x_offset < 0 || y + y_pos - sprite.y_offset < 0)
+              continue;
+            
+            int location = (x + render.vinfo.xoffset + x_pos - sprite.x_offset) * (render.vinfo.bits_per_pixel/8) +
+                (y + render.vinfo.yoffset + y_pos - sprite.y_offset) * render.finfo.line_length;
             png_bytep px = &(row[x * 4]);
 
             //Check if transparent
             if (px[0] == 0 && px[1] == 0 && px[2] == 0 && px[3] == 0)
                 continue;
-
-            *(render.fb_map + location) = px[2];        //Blue
-            *(render.fb_map + location + 1) = px[1];     //Green
-            *(render.fb_map + location + 2) = px[0];    //Red
-            *(render.fb_map + location + 3) = 0;      // No transparency
+            //printf("%lu\n", (unsigned long) render.fb_temp);
+            *(render.fb_temp + location) = px[2];        //Blue
+            *(render.fb_temp + location + 1) = px[1];     //Green
+            *(render.fb_temp + location + 2) = px[0];    //Red
+            *(render.fb_temp + location + 3) = 0;      // No transparency
 
         }
     }
@@ -80,8 +81,7 @@ void init_sprite_render(Sprite_Render *render) {
     }
 
     render->fd_fb = fd_fb;
-    //render->fb_real = fb_map;
-    //render->fb_map = (char *) malloc(screensize);
+    render->fb_temp = (char *) malloc(screensize);
     render->fb_map = fb_map;
     render->screensize = screensize;
     render->max_x = render->vinfo.xres;

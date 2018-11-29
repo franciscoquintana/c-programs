@@ -37,6 +37,8 @@ void *render(void *param) {
 
     int msMax = 1000/30;
 
+    int x_offset = 0, y_offset = 0; 
+
     while(!finish_program) {
         now = getTimeMs();
         int delta = now - lastFrame;
@@ -45,15 +47,43 @@ void *render(void *param) {
         if (delta < msMax){
             usleep((msMax - delta) * 1000);
         }
+        
+        //printf("%i\n", getpid());
+        //sleep(20);
+
+        //CALC OFFSET
+        int range = 200;
+        Client *client = get_uuid_value(&coches, client_id);
+        if(client != NULL) {
+            int pos_x = client->info.x + sprite.image.width;
+            int space_x = (render.max_x - pos_x); 
+            if(space_x < range)
+                x_offset = range - space_x;
+            else
+                x_offset = 0;  
+
+            int pos_y = client->info.y + sprite.image.height;
+            int space_y = (render.max_y - pos_y);
+            if(space_y < range)
+                y_offset = range - space_y;
+            else
+                y_offset = 0;
+        }
+        //END
+        //
+
+        background.x_offset = x_offset;
+        background.y_offset = y_offset;
 
         printSprite(render, 0, 0, background);
 
         for(int i = 0; i < coches.size; i++) {
             CarInfo coche = coches.map[i].value.info;
-            printSpriteRotate(render, coche.x, coche.y, sprite, coche.angle *180/3.141593 );
+            printSpriteRotate(render, coche.x - x_offset, coche.y - y_offset, sprite, coche.angle *180/3.141593 );
         }
 
         //renderStr(render, font, 0, 0, "test");
+        memcpy(render.fb_map, render.fb_temp, render.screensize);
     }
 
     free_render(&render);
@@ -75,7 +105,7 @@ int connect() {
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8888);
-    addr.sin_addr.s_addr = inet_addr("172.18.35.18");
+    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     socklen_t size = sizeof(addr);
 
@@ -141,13 +171,14 @@ int main() {
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGBUS, &sa, NULL);
+    sigaction(SIGPIPE, &sa, NULL);
 
     pthread_t render_thread, keyboard_thread, listen_thread;
 
     pthread_create(&render_thread, NULL, &render, NULL);
 
     pthread_create(&listen_thread, NULL, &listen, (void *) &server_fd);
-    
+
     set_input_mode();
     pthread_create(&keyboard_thread, NULL, &readKeyboard, NULL);
 
@@ -183,6 +214,7 @@ int main() {
     pthread_join(keyboard_thread, NULL);
     reset_input_mode();
     pthread_join(render_thread, NULL);
+    pthread_join(listen_thread, NULL);
 
     printf("Principal cerrado\n");
     return 0;
