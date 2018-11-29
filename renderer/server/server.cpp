@@ -114,7 +114,10 @@ void handle_client(int client_fd) {
     while (true) {
         Client * client_2 = get_uuid_value(clientMap, client.info.id);
         read(client_fd, &client_2->moveinfo, sizeof(MoveCar));
-        write(client_fd, &client_2->info, sizeof(CarInfo));
+        for (int c=0; c<clientMap->size ;c++) {
+           Client *client = &clientMap->map[c].value;
+           write(client->fd, &client->info, sizeof(CarInfo));       
+         }
     }
 }
 

@@ -75,7 +75,7 @@ int connect() {
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8888);
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    addr.sin_addr.s_addr = inet_addr("172.18.35.18");
 
     socklen_t size = sizeof(addr);
 
@@ -128,9 +128,11 @@ void *listen(void *arg) {
 }
 
 int main() {
-    atexit(&reset_input_mode);
-
     finish_program = 0;
+
+    int server_fd = connect();
+
+    atexit(&reset_input_mode);
 
     struct sigaction sa;
     bzero(&sa, sizeof(sa));
@@ -139,8 +141,6 @@ int main() {
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
     sigaction(SIGBUS, &sa, NULL);
-
-    int server_fd = connect();
 
     pthread_t render_thread, keyboard_thread, listen_thread;
 
