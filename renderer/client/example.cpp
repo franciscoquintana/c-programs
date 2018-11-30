@@ -47,27 +47,61 @@ void *render(void *param) {
         if (delta < msMax){
             usleep((msMax - delta) * 1000);
         }
-        
+
         //printf("%i\n", getpid());
         //sleep(20);
 
         //CALC OFFSET
         int range = 200;
         Client *client = get_uuid_value(&coches, client_id);
+
+
+        //CALCULA -MOVE
+        if(client != NULL) {
+            if(x_offset != 0) {
+                int pos_x = client->info.x;
+                int space_x = pos_x - x_offset; 
+                if(space_x < range) {
+                    int difference = x_offset - (range - space_x);
+                    if (difference < x_offset)
+                        x_offset = difference;
+                    if(x_offset < 0)
+                        x_offset = 0;
+                }
+            }
+
+            if(y_offset != 0) {
+                int pos_y = client->info.y;
+                int space_y = pos_y - y_offset;
+                if(space_y < range) {
+                    int difference = y_offset - (range - space_y);
+                    if (difference < y_offset)
+                        y_offset = difference;
+                    if(y_offset < 0)
+                        y_offset = 0;
+                }
+            }
+        }
+        //END
+        //
+
+        //CALCULA +MOVE
         if(client != NULL) {
             int pos_x = client->info.x + sprite.image.width;
             int space_x = (render.max_x - pos_x); 
-            if(space_x < range)
-                x_offset = range - space_x;
-            else
-                x_offset = 0;  
+            if(space_x < range) {
+                int difference = range - space_x;
+                if (difference > x_offset)
+                    x_offset = range - space_x;
+            }
 
             int pos_y = client->info.y + sprite.image.height;
             int space_y = (render.max_y - pos_y);
-            if(space_y < range)
-                y_offset = range - space_y;
-            else
-                y_offset = 0;
+            if(space_y < range) {
+                int difference = range - space_y;
+                if (difference > y_offset)
+                    y_offset = range - space_y;
+            }
         }
         //END
         //
